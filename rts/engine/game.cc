@@ -89,6 +89,31 @@ bool RTSGame::move_to_tick(float percent) {
     _snapshot_to_load = *it;
     return true;
 }
+bool RTSGame::move_to_tick_number(int tick_number) {
+    // Move to a specific tick.
+    int num_replay_entry = _cmd_receiver.GetLoadedReplaySize();
+    cout << "#replay = " << num_replay_entry << endl;
+    cout << "snapshot_load_prefix = " << _options.snapshot_load_prefix << endl;
+    cout << "#snapshot = " << _options.snapshots.size() << endl;
+
+    if (num_replay_entry == 0 || _options.snapshot_load_prefix.empty()) {
+        _snapshot_to_load = -1;
+        return false;
+    }
+
+    //Tick last_tick = _cmd_receiver.GetLoadedReplayLastTick();
+    Tick new_tick = static_cast<Tick>(tick_number);
+
+    const auto &snapshots = _options.snapshots;
+
+    // Check the closest earlier snapshot and load it.
+    auto it = lower_bound(snapshots.begin(), snapshots.end(), new_tick);
+    if (it == snapshots.end()) it --;
+
+    // Load the snapshot.
+    _snapshot_to_load = *it;
+    return true;
+}
 
 bool RTSGame::change_simulation_speed(float fraction) {
     _options.main_loop_quota /= fraction;
@@ -96,7 +121,21 @@ bool RTSGame::change_simulation_speed(float fraction) {
 }
 
 CmdReturn RTSGame::dispatch_cmds(const UICmd& cmd) {
+	cout << cmd.cmd << endl;
     switch(cmd.cmd) {
+        case UI_TICK_JUMP:
+        {
+        	cout << "in UI tick jump ";
+        	if (_spectator == nullptr){
+        		cout << "spectator was nullptr ";
+        	}
+        	cout << "cmd.arg3 was " << cmd.arg3 << endl;
+		    //if (_spectator != nullptr && move_to_tick(cmd.arg3)) return CMD_SUCCESS;
+        	bool b = move_to_tick_number(cmd.arg3);
+        	cout << "result of move_to_tick was "<< b << endl;
+		    if (b) return CMD_SUCCESS;
+		    break;
+        }
         case UI_SLIDEBAR:
             // UI controls, only works if there is a spectator.
             // cout << "Receive slider bar notification " << cmd.arg2 << endl;

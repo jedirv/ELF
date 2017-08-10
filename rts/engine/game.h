@@ -151,6 +151,10 @@ private:
     // Move to certain point of a replay. 0.0 - 1.0
     bool move_to_tick(float percent);
 
+    //OSU
+    // Move to certain tick in replay
+    bool move_to_tick_number(int tick_number);
+
     // Update simulation speed, used in gui.
     bool change_simulation_speed(float fraction);
 

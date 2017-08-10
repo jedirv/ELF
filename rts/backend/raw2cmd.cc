@@ -125,6 +125,7 @@ RawMsgStatus RawToCmd::Process(const GameEnv &env, const string&s, CmdReceiver *
     Tick t;
     char c;
     float percent;
+    int tickJumpTarget;
     PointF p, p2;
     set<UnitId> selected;
 
@@ -167,6 +168,11 @@ RawMsgStatus RawToCmd::Process(const GameEnv &env, const string&s, CmdReceiver *
             // cout << "Get slider bar notification " << percent << endl;
             receiver->SendCmd(UICmd::GetUISlideBar(percent));
             return PROCESSED;
+        case 'J':
+        	ii >> tickJumpTarget;
+        	receiver->SendCmd(UICmd::GetOsuUITickJump(tickJumpTarget));
+        	cout << "tickJumpTarget was : " << tickJumpTarget << endl;
+        	return PROCESSED;
         case 'P':
             receiver->SendCmd(UICmd::GetToggleGamePause());
             return PROCESSED;
