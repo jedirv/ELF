@@ -182,20 +182,22 @@ void RTSGame::load_from_string(const string &s) {
 }
 
 void RTSGame::load_snapshot(const string &filename) {
+    string path =  _options.snapshot_dir + filename;
     serializer::loader loader(_options.save_with_binary_format);
-    if (! loader.read_from_file(filename)) {
-        throw std::range_error("Cannot read from " + filename);
+    if (! loader.read_from_file(path)) {
+        throw std::range_error("Cannot read from " + path);
     }
     _env.LoadSnapshot(loader);
     _cmd_receiver.LoadCmdReceiver(loader);
 }
 
 void RTSGame::save_snapshot(const string &filename) const {
+    string path = _options.snapshot_dir + "/" + filename;
     serializer::saver saver(_options.save_with_binary_format);
     _env.SaveSnapshot(saver);
     _cmd_receiver.SaveCmdReceiver(saver);
-    if (! saver.write_to_file(filename)) {
-        throw std::range_error("Cannot write to " + filename);
+    if (! saver.write_to_file(path)) {
+        throw std::range_error("Cannot write to " + path);
     }
 }
 

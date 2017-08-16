@@ -116,6 +116,8 @@ RTSGameOptions GetOptions(const Parser &parser) {
     options.seed = parser.GetItem<int>("seed");
     options.cmd_verbose = parser.GetItem<int>("cmd_verbose");
     options.handicap_level = parser.GetItem<int>("handicap_level", 0);
+    options.datafiles_root = parser.GetItem<string>("datafiles_root", "");
+    options.AdjustToDatafilesRoot();
 
     string ticks = parser.GetItem<string>("peek_ticks", "");
     for (const auto &tick : split(ticks, ',')) {
@@ -360,7 +362,8 @@ int main(int argc, char *argv[]) {
 
     CmdLineUtils::CmdLineParser parser("playstyle --save_replay --load_replay --vis_after[-1] --save_snapshot_prefix --load_snapshot_prefix --seed[0] \
 --load_snapshot_length --max_tick[30000] --binary_io[1] --games[16] --frame_skip[1] --tick_prompt_n_step[2000] --cmd_verbose[0] --peek_ticks --cmd_dumper_prefix \
---output_file[cout] --mcts_threads[16] --mcts_rollout_per_thread[100] --threads[64] --load_binary_string --mcts_verbose --mcts_prerun_cmds --handicap_level[0]");
+--output_file[cout] --mcts_threads[16] --mcts_rollout_per_thread[100] --threads[64] --load_binary_string --mcts_verbose --mcts_prerun_cmds --handicap_level[0] \
+--datafiles_root");
 
     if (! parser.Parse(argc, argv)) {
         cout << parser.PrintHelper() << endl;
