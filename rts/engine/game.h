@@ -121,17 +121,21 @@ struct RTSGameOptions {
         return ss.str();
     }
 	void AdjustToDatafilesRoot() {
+	    cout << PrintInfo() << endl;
 		if (datafiles_root.empty()){
 			snapshot_dir = ".";
 			replay_dir = ".";
 		}
 		else {
 			/* datafiles_root is present
-			 *  - if a replay is being saved, clean out the directory - assume its a do-over
+			 *  - if snapshot_prefix has contents, it means the
+			 *  save_snapshot_prefix flag was used, which means we assume its a new
+			 *  run we want to save so if there is already data in the specified
+			 *  datafiles_dir, clean it out.
 			 *  -adjust snapshot dir and replay dir
 			 */
-			if (!save_replay_prefix.empty()) {
-				// It's a new replay save, so clean out datafiles_root
+			if (!snapshot_prefix.empty()) {
+				// New snapshot files coming in, so clean out datafiles_root
 				// to make way for new replay and potentially shapshot data
 				FileUtils::clean_directory(datafiles_root);
 			}

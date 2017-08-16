@@ -267,7 +267,8 @@ bool RTSGame::PrepareGame() {
   bool situation_loaded = false;
   if (! load_replay_filename.empty()) {
       if (_output_stream) *_output_stream << "Load from replay, name = " << load_replay_filename << endl << flush;
-      if (_cmd_receiver.LoadReplay(load_replay_filename)) {
+      string load_replay_pathname = _options.replay_dir + "/" + load_replay_filename;
+      if (_cmd_receiver.LoadReplay(load_replay_pathname)) {
         situation_loaded = true;
       } else {
           if (_output_stream) *_output_stream << "Failed to open " << load_replay_filename << endl << flush;
@@ -448,7 +449,8 @@ PlayerId RTSGame::MainLoop(const std::atomic_bool *done) {
 
   // cout << "[" << prefix << "] About to save to rep" << endl;
   if (! _options.save_replay_prefix.empty()) {
-      _cmd_receiver.SaveReplay(prefix + ".rep");
+      string replay_path = _options.replay_dir + "/" + prefix + ".rep";
+      _cmd_receiver.SaveReplay(replay_path);
   }
   return _env.GetWinnerId();
 }
