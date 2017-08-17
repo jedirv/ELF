@@ -24,6 +24,7 @@
 #include <set>
 #include "game_env.h"
 #include "ai.h"
+#include "file_util.h"
 
 struct RTSGameOptions {
     // A map file that specifies the map, the terrain
@@ -84,6 +85,11 @@ struct RTSGameOptions {
     // Handicap_level used in Capture the Flag.
     int handicap_level = 0;
 
+    // the root directory under which snapshot,replay, decision files will be put. If not set, it will just be in the current directory
+    string datafiles_root;
+    string snapshot_dir;
+    string replay_dir;
+
     string PrintInfo() const {
         std::stringstream ss;
 
@@ -111,9 +117,45 @@ struct RTSGameOptions {
         ss << "Max ticks: " << max_tick << endl;
         ss << "Tick prompt n step: " << tick_prompt_n_step << endl;
         ss << "Save with binary format: " << (save_with_binary_format ? "True" : "False") << endl;
-
+        ss << "Datafiles root: " << datafiles_root << endl;
         return ss.str();
     }
+	void AdjustToDatafilesRoot() {
+	    //cout << PrintInfo() << endl;
+		if (datafiles_root.empty()){
+			snapshot_dir = ".";
+			replay_dir = ".";
+		}
+		else {
+			/* datafiles_root is present
+			 *  - if snapshot_prefix has contents, it means the
+			 *  save_snapshot_prefix flag was used, which means we assume its a new
+			 *  run we want to save so if there is already data in the specified
+			 *  datafiles_dir, clean it out.
+			 *  -adjust snapshot dir and replay dir
+			 */
+			if (!snapshot_prefix.empty()) {
+				// New snapshot files coming in, so clean out datafiles_root
+				// to make way for new replay and potentially shapshot data
+				FileUtils::clean_directory(datafiles_root);
+			}
+			if (!FileUtils::is_valid_dir(datafiles_root)) {
+				if (!FileUtils::ensure_directory_exists(datafiles_root)) {
+					throw std::runtime_error(
+							"The specified directory could not be created: "
+									+ datafiles_root);
+				}
+			}
+			snapshot_dir = datafiles_root + "/snapshot";
+			if (!FileUtils::ensure_directory_exists(snapshot_dir)){
+				throw std::runtime_error("Could not create directory " + snapshot_dir);
+			}
+			replay_dir   = datafiles_root + "/replay";
+			if (!FileUtils::ensure_directory_exists(replay_dir)){
+				throw std::runtime_error("Could not create directory " + replay_dir);
+			}
+		}
+	}
 };
 
 // A tick-based RTS game.
@@ -150,6 +192,10 @@ private:
 
     // Move to certain point of a replay. 0.0 - 1.0
     bool move_to_tick(float percent);
+
+    //OSU
+    // Move to certain tick in replay
+    bool move_to_tick_number(int tick_number);
 
     // Update simulation speed, used in gui.
     bool change_simulation_speed(float fraction);

@@ -89,6 +89,31 @@ bool RTSGame::move_to_tick(float percent) {
     _snapshot_to_load = *it;
     return true;
 }
+bool RTSGame::move_to_tick_number(int tick_number) {
+    // Move to a specific tick.
+    int num_replay_entry = _cmd_receiver.GetLoadedReplaySize();
+    cout << "#replay = " << num_replay_entry << endl;
+    cout << "snapshot_load_prefix = " << _options.snapshot_load_prefix << endl;
+    cout << "#snapshot = " << _options.snapshots.size() << endl;
+
+    if (num_replay_entry == 0 || _options.snapshot_load_prefix.empty()) {
+        _snapshot_to_load = -1;
+        return false;
+    }
+
+    //Tick last_tick = _cmd_receiver.GetLoadedReplayLastTick();
+    Tick new_tick = static_cast<Tick>(tick_number);
+
+    const auto &snapshots = _options.snapshots;
+
+    // Check the closest earlier snapshot and load it.
+    auto it = lower_bound(snapshots.begin(), snapshots.end(), new_tick);
+    if (it == snapshots.end()) it --;
+
+    // Load the snapshot.
+    _snapshot_to_load = *it;
+    return true;
+}
 
 bool RTSGame::change_simulation_speed(float fraction) {
     _options.main_loop_quota /= fraction;
@@ -96,7 +121,21 @@ bool RTSGame::change_simulation_speed(float fraction) {
 }
 
 CmdReturn RTSGame::dispatch_cmds(const UICmd& cmd) {
+	cout << cmd.cmd << endl;
     switch(cmd.cmd) {
+        case UI_TICK_JUMP:
+        {
+        	cout << "in UI tick jump ";
+        	if (_spectator == nullptr){
+        		cout << "spectator was nullptr ";
+        	}
+        	cout << "cmd.arg3 was " << cmd.arg3 << endl;
+		    //if (_spectator != nullptr && move_to_tick(cmd.arg3)) return CMD_SUCCESS;
+        	bool b = move_to_tick_number(cmd.arg3);
+        	cout << "result of move_to_tick was "<< b << endl;
+		    if (b) return CMD_SUCCESS;
+		    break;
+        }
         case UI_SLIDEBAR:
             // UI controls, only works if there is a spectator.
             // cout << "Receive slider bar notification " << cmd.arg2 << endl;
@@ -143,20 +182,22 @@ void RTSGame::load_from_string(const string &s) {
 }
 
 void RTSGame::load_snapshot(const string &filename) {
+    string path =  _options.snapshot_dir + filename;
     serializer::loader loader(_options.save_with_binary_format);
-    if (! loader.read_from_file(filename)) {
-        throw std::range_error("Cannot read from " + filename);
+    if (! loader.read_from_file(path)) {
+        throw std::range_error("Cannot read from " + path);
     }
     _env.LoadSnapshot(loader);
     _cmd_receiver.LoadCmdReceiver(loader);
 }
 
 void RTSGame::save_snapshot(const string &filename) const {
+    string path = _options.snapshot_dir + "/" + filename;
     serializer::saver saver(_options.save_with_binary_format);
     _env.SaveSnapshot(saver);
     _cmd_receiver.SaveCmdReceiver(saver);
-    if (! saver.write_to_file(filename)) {
-        throw std::range_error("Cannot write to " + filename);
+    if (! saver.write_to_file(path)) {
+        throw std::range_error("Cannot write to " + path);
     }
 }
 
@@ -226,7 +267,8 @@ bool RTSGame::PrepareGame() {
   bool situation_loaded = false;
   if (! load_replay_filename.empty()) {
       if (_output_stream) *_output_stream << "Load from replay, name = " << load_replay_filename << endl << flush;
-      if (_cmd_receiver.LoadReplay(load_replay_filename)) {
+      string load_replay_pathname = _options.replay_dir + "/" + load_replay_filename;
+      if (_cmd_receiver.LoadReplay(load_replay_pathname)) {
         situation_loaded = true;
       } else {
           if (_output_stream) *_output_stream << "Failed to open " << load_replay_filename << endl << flush;
@@ -407,7 +449,8 @@ PlayerId RTSGame::MainLoop(const std::atomic_bool *done) {
 
   // cout << "[" << prefix << "] About to save to rep" << endl;
   if (! _options.save_replay_prefix.empty()) {
-      _cmd_receiver.SaveReplay(prefix + ".rep");
+      string replay_path = _options.replay_dir + "/" + prefix + ".rep";
+      _cmd_receiver.SaveReplay(replay_path);
   }
   return _env.GetWinnerId();
 }

@@ -37,11 +37,12 @@
     CMD_IMMEDIATE(CDStart, CDType, cd_type);
         Start cooldown for cd_type.
 */
-custom_enum(UICtrlType, UI_SLIDEBAR, UI_FASTER_SIMULATION, UI_SLOWER_SIMULATION, UI_CYCLEPLAYER, TOGGLE_GAME_PAUSE);
+custom_enum(UICtrlType, UI_SLIDEBAR, UI_FASTER_SIMULATION, UI_SLOWER_SIMULATION, UI_CYCLEPLAYER, TOGGLE_GAME_PAUSE, UI_TICK_JUMP);
 
 struct UICmd {
     UICtrlType cmd;
     float arg2;
+    int arg3;
 
     UICmd() { }
 
@@ -49,6 +50,7 @@ struct UICmd {
     static UICmd GetUISlower() { UICmd cmd; cmd.cmd = UI_SLOWER_SIMULATION; return cmd; }
     // Percentage, 0-100.0
     static UICmd GetUISlideBar(float percent) { UICmd cmd; cmd.cmd = UI_SLIDEBAR; cmd.arg2 = percent; return cmd; }
+    static UICmd GetOsuUITickJump(int tickTarget) { UICmd cmd; cmd.cmd = UI_TICK_JUMP; cmd.arg3 = tickTarget; return cmd; }
     static UICmd GetUICyclePlayer() { UICmd cmd; cmd.cmd = UI_CYCLEPLAYER; return cmd; }
     static UICmd GetToggleGamePause() { UICmd cmd; cmd.cmd = TOGGLE_GAME_PAUSE; return cmd; }
 
