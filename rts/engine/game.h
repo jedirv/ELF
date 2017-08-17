@@ -121,7 +121,7 @@ struct RTSGameOptions {
         return ss.str();
     }
 	void AdjustToDatafilesRoot() {
-	    cout << PrintInfo() << endl;
+	    //cout << PrintInfo() << endl;
 		if (datafiles_root.empty()){
 			snapshot_dir = ".";
 			replay_dir = ".";
@@ -141,7 +141,7 @@ struct RTSGameOptions {
 			}
 			if (!FileUtils::is_valid_dir(datafiles_root)) {
 				if (!FileUtils::ensure_directory_exists(datafiles_root)) {
-					throw std::invalid_argument(
+					throw std::runtime_error(
 							"The specified directory could not be created: "
 									+ datafiles_root);
 				}

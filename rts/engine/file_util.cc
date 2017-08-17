@@ -42,7 +42,10 @@ bool FileUtils::ensure_directory_exists(const std::string &s){
         //return boost::filesystem::create_directory(s);
         string command = "mkdir -p " + s;
         int result = system(command.c_str());
-        return result;
+        if (result == 0){
+            return true;
+        }
+        return false;
     } catch (exception &e) {
         cout << "had problem creating directory" << endl;
         cout << e.what() << endl;
