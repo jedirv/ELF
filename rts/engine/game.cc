@@ -182,7 +182,7 @@ void RTSGame::load_from_string(const string &s) {
 }
 
 void RTSGame::load_snapshot(const string &filename) {
-    string path =  _options.snapshot_dir + filename;
+    string path =  _options.snapshot_dir + "/" + filename;
     serializer::loader loader(_options.save_with_binary_format);
     if (! loader.read_from_file(path)) {
         throw std::range_error("Cannot read from " + path);
