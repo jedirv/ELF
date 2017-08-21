@@ -30,7 +30,6 @@ var dragging = false;
 var tick = 0;
 var dealer;
 var button_left = left_frame_width + 30;
-var osu_button_left = left_frame_width + 30;
 var speed = 0;
 var min_speed = -10;
 var max_speed = 5;
@@ -61,25 +60,8 @@ range2.oninput = function(){
         }
     }
 }
-//OSU
-var rangeTicks = document.createElement("INPUT");
-rangeTicks.type = "range";
-rangeTicks.min = 0
-rangeTicks.max = 100;
-rangeTicks.value = 0;
-rangeTicks.step = 1;
-rangeTicks.style.position = "absolute";
-rangeTicks.style.top = 400;
-rangeTicks.style.left = left_frame_width + 50;
-rangeTicks.style.zindex = 2;
-rangeTicks.style.width = "350px";
-rangeTicks.style.height = "30px";
-rangeTicks.oninput = function(){
-	  send_cmd(tick + ' J ' + this.value);
-}
 
 document.body.appendChild(range2);
-document.body.appendChild(rangeTicks);//OSU
 
 var addButton = function(text, cmd) {
     var button = document.createElement("button");
@@ -118,26 +100,6 @@ addButton("Slower", "W");
 addButton("Cycle", "C");
 addButton("Pause", "P");
 
-//OSU
-var addTickButton = function(text, tick_number) {
-    var button = document.createElement("button");
-    button.innerHTML = text;
-    button.style.position = "absolute";
-    button.style.top = 360;
-    button.style.left = osu_button_left;
-    button.style.zindex = 2;
-    button.style.width = "50px";
-    button.style.height = "30px";
-    osu_button_left += 100;
-    document.body.appendChild(button);
-    button.addEventListener ("click", function() {
-        send_cmd(tick + ' J ' + tick_number);
-    });
-};
-
-addTickButton("22", 22);		//OSU
-addTickButton("377", 377);		//OSU
-addTickButton("4000", 4000);	//OSU
 
 var range1 = document.createElement("INPUT");
 range1.type = "range";
