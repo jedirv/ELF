@@ -68,7 +68,9 @@ public:
         (void)must_act;
         return true;
     }
-
+    virtual bool send_decision_info(){
+        return true;
+    }
     // Get called when we start a new game.
     virtual void Reset() { }
 

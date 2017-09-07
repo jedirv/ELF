@@ -45,6 +45,7 @@ public:
               new WSServer{port, [this](const std::string& msg) {
                 this->queue_.enqueue(msg);
               }});
+          send_decision_info();
         }
 
     bool Act(const GameEnv &env, bool must_act = false) override;
@@ -55,4 +56,6 @@ public:
       auto selected = _raw_converter.GetAllSelectedUnits();
       return vector<int>(selected.begin(), selected.end());
     }
+
+    bool send_decision_info() override;
 };

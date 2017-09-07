@@ -87,6 +87,7 @@ struct RTSGameOptions {
 
     // the root directory under which snapshot,replay, decision files will be put. If not set, it will just be in the current directory
     string datafiles_root;
+    string decision_dir;
     string snapshot_dir;
     string replay_dir;
 
@@ -154,6 +155,11 @@ struct RTSGameOptions {
 			if (!FileUtils::ensure_directory_exists(replay_dir)){
 				throw std::runtime_error("Could not create directory " + replay_dir);
 			}
+            decision_dir = datafiles_root + "/decisions";
+            if (!FileUtils::ensure_directory_exists(decision_dir)) {
+                throw std::runtime_error(
+                        "Could not create directory " + decision_dir);
+            }
 		}
 	}
 };

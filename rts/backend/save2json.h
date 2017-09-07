@@ -35,6 +35,7 @@ public:
   static void Save(const Unit& unit, const CmdReceiver &receiver, json *game);
   static void Save(const Bullet& bullet, json *game);
   static void SaveCmd(const CmdReceiver &receiver, PlayerId player_id, json *game);
+  static void BuildTypedMessage(json *payload, string& type, json *message);
 };
 
 #endif

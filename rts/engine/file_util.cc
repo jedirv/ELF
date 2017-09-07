@@ -11,6 +11,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <vector>
 //#include "/usr/include/boost/filesystem.hpp"
 
 using namespace std;
@@ -66,3 +68,39 @@ bool FileUtils::clean_directory(const std::string &s){
 		return false;
 	}
 }
+std::vector<std::string> FileUtils::list_files(const std::string &s){
+    DIR *dir;
+    struct dirent *ent;
+    std::vector<std::string> filenames;
+    if ((dir = opendir (s.c_str())) != NULL) {
+      /* print all the files and directories within directory */
+      while ((ent = readdir (dir)) != NULL) {
+          std::string filename(ent->d_name);
+          filenames.push_back(filename);
+          printf ("%s\n", ent->d_name);
+      }
+      closedir (dir);
+    } else {
+      /* could not open directory */
+      throw domain_error("problem listing files from  " + s);
+
+    }
+    return filenames;
+}
+bool FileUtils::has_filetype(const std::string &s, const std::string &type){
+    if (type.size() > s.size()) return false;
+    return std::equal(type.rbegin(), type.rend(), s.rbegin());
+}
+std::string FileUtils::get_file_root(const std::string &s){
+    std::string::const_iterator iter = s.begin();
+    while (*iter != '.' && iter < s.end()){
+        iter++;
+    }
+    std::string root;
+    copy(s.begin(), iter, back_inserter(root));
+    return root;
+}
+
+
+
+

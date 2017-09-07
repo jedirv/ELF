@@ -126,7 +126,7 @@ var addTickButton = function(text, tick_number) {
     button.style.top = 360;
     button.style.left = osu_button_left;
     button.style.zindex = 2;
-    button.style.width = "50px";
+    button.style.width = "150px";
     button.style.height = "30px";
     osu_button_left += 100;
     document.body.appendChild(button);
@@ -137,7 +137,7 @@ var addTickButton = function(text, tick_number) {
 
 addTickButton("22", 22);		//OSU
 addTickButton("377", 377);		//OSU
-addTickButton("4000", 4000);	//OSU
+
 
 var range1 = document.createElement("INPUT");
 range1.type = "range";
@@ -541,9 +541,28 @@ var main = function () {
 
   dealer.onmessage = function (message) {
     var s = message.data;
-    var game = JSON.parse(s);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    render(game);
+    //var game = JSON.parse(s);
+    var typedMessage = JSON.parse(s);
+    var type = typedMessage.minirtsMessageType;
+    if (type === "gameState"){
+    	var game = typedMessage.payload;
+    	ctx.clearRect(0, 0, canvas.width, canvas.height);
+        render(game);
+    }
+    else if (type === "decisionInfo"){
+    	var decisionInfo = typedMessage.payload;
+    	var decisions = decisionInfo.decisions;
+    	for (var i in decisions){
+    		addTickButton(decisions[i].action, decisions[i].frame);
+    	}
+    	//info["decisions"]["100"]["action"] = "attack";
+    	//  info["decisions"]["200"]["action"] = "retreat";
+    	//  info["decisions"]["300"]["action"] = "build";
+    	//addTickButton("600", 600);
+    }
+    else {
+    	addTickButton("500", 500);		//OSU
+    }
   };
 };
 

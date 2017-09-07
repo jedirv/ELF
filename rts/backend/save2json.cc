@@ -54,7 +54,10 @@ void save2json::SetTermination(bool t, json *game) {
 void save2json::SetGameCounter(int game_counter, json *game) {
     (*game)["game_counter"] = game_counter;
 }
-
+void save2json::BuildTypedMessage(json *payload, string& type, json *message) {
+    (*message)["minirtsMessageType"] = type;
+    (*message)["payload"] = *payload;
+}
 void save2json::Save(const RTSMap& m, json *game) {
     json rts_map;
     rts_map["width"] = m.GetXSize();

@@ -9,6 +9,9 @@
 
 #include "comm_ai.h"
 #include "save2json.h"
+#include "../xai/decisions.h"
+#include "../xai/decision.h"
+#include <vector>
 
 ///////////////////////////// Web TCP AI ////////////////////////////////
 bool TCPAI::Act(const GameEnv &env, bool /* must_act */) {
@@ -43,10 +46,41 @@ string TCPAI::save_vis_data(const GameEnv& env) const {
     save2json::Save(*this, &game);
     save2json::SaveCmd(*_receiver, _player_id, &game);
   }
-  return game.dump();
+  json message;
+  std::string game_state_message_type("gameState");
+  save2json::BuildTypedMessage(&game, game_state_message_type, &message);
+  return message.dump();
 }
-
 bool TCPAI::send_vis(const string &s) {
+  server_->send(s);
+  return true;
+}
+bool TCPAI::send_decision_info(){
+  std::string dir("/home/irvineje/exact/ELF-OSU/data/decisions");
+  xai::Decisions decisions(dir);
+  std::vector<xai::Decision> decs = decisions.get_decisions();
+  std::vector<xai::Decision>::const_iterator iter = decs.begin();
+  std::vector<json> json_decs;
+  while (iter != decs.end()){
+      xai::Decision dec = *iter;
+      std::string action = dec.getAction();
+      int frame = dec.getFrame();
+      json decision_json = { {"frame", frame}, {"action", action} };
+      json_decs.push_back(decision_json);
+      iter++;
+  }
+  json message;
+  std::string decision_info_message_type("decisionInfo");
+  //std::string action("attack");
+  //int frame = 100;
+  //json info1 = { {"frame", frame}, {"action", action} };
+  //json info2 = { {"frame", 200}, {"action", "retreat"} };
+  //json info3 = { {"frame", 300}, {"action", "build"} };
+  json info;
+  //info["decisions"] = { info1, info2, info3 };
+  info["decisions"] = json_decs;
+  save2json::BuildTypedMessage(&info, decision_info_message_type, &message);
+  const string s(message.dump());
   server_->send(s);
   return true;
 }
