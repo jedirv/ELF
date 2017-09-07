@@ -17,7 +17,8 @@ endif
 
 PYTHON_CONFIG ?= python-config
 
-OPTFLAGS ?= -O3 -msse3
+#OPTFLAGS ?= -O3 -msse3
+OPTFLAGS ?= -O0 -msse3
 # OPTFLAGS ?= -g3 -fsanitize=address,undefined,leak -O2 -lasan
 # OPTFLAGS ?= -g3 -fsanitize=leak -O2 -lubsan
 DEFINES = -DDEBUG #-DUSE_PYBIND11
@@ -38,7 +39,7 @@ LDFLAGS += $(shell $(PYTHON_CONFIG) --ldflags)
 
 CXXFLAGS ?=
 CXXFLAGS += $(INCLUDE_DIR)
-CXXFLAGS += -Wall -Wextra
+CXXFLAGS += -Wall -Wextra -g
 #CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-function -Wno-misleading-indentation -Wno-unused-but-set-variable
 CXXFLAGS += -D GIT_COMMIT_HASH=${GIT_COMMIT_HASH} -D GIT_UNSTAGED=${GIT_UNSTAGED}
 CXXFLAGS += $(DEFINES) -std=c++11 $(OPTFLAGS) -fPIC

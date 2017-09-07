@@ -1,16 +1,19 @@
 
 CXX ?= g++
+#CXX ?= clang
 CC ?= gcc
 PYTHON ?= python
 SHELL = bash
-OPTFLAGS ?= -O3 -msse3
+#OPTFLAGS ?= -O3 -msse3
+OPTFLAGS ?= -O0 -msse3
+
 
 CFLAGS += -fPIC
 PYTHON_CONFIG ?= python-config
 
 # optional extra packages
 LIBS = zlib
-INCLUDE_DIR += -I. $(shell pkg-config --cflags $(LIBS)) -isystem ../../vendor -I $(GAME_DIR)
+INCLUDE_DIR += -I. $(shell pkg-config --cflags $(LIBS)) -isystem ../../vendor -I $(GAME_DIR) -I ../xai
 INCLUDE_DIR += $(shell $(PYTHON_CONFIG) --cflags | cut -d ' ' -f 1)
 
 #DEFINES += -DDEBUG
@@ -19,20 +22,25 @@ CXXFLAGS += $(INCLUDE_DIR)
 CXXFLAGS += -Wall -Wextra
 #CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-function -Wno-misleading-indentation -Wno-unused-but-set-variable
 CXXFLAGS += -D GIT_COMMIT_HASH=${GIT_COMMIT_HASH} -D GIT_UNSTAGED=${GIT_UNSTAGED}
-CXXFLAGS += $(DEFINES) -std=c++11 $(OPTFLAGS) -fPIC
+CXXFLAGS += $(DEFINES) -std=c++11 $(OPTFLAGS) -fPIC -g
 
 LDFLAGS += $(shell pkg-config $(LIBS) --libs)
 LDFLAGS += $(shell $(PYTHON_CONFIG) --ldflags)
 LDFLAGS += $(OPTFLAGS)
 LDFLAGS += -lm -ltbb
+LDFLAGS += -L/usr/lib/x86_64-linux-gnu/libboost_system.so -lboost_system -lboost_filesystem
 
 # rts_engine
 ccSOURCES += $(shell find . -name "*.cc"  |  sed 's/^\.\///g')
 # elf
 ccSOURCES += $(shell find ../../elf/lib -name "*.cc"  |  sed 's/^\.\///g')
+# xai
+ccSOURCES += $(shell find ../xai -name "*.cc"  |  sed 's/^\.\///g')
 
+#$(warning ccSOURCES is $(ccSOURCES))
 OBJ_DIR = obj
 OBJS = $(addprefix $(OBJ_DIR)/,$(ccSOURCES:.cc=.o))
+#$(warning OBJS is $(OBJS))
 GAME_OBJ_DIR = $(GAME_DIR)/obj
 ENGINE_OBJ_DIR = $(GAME_DIR)/engine
 GAME_OBJS = $(wildcard $(GAME_OBJ_DIR)/*.o $(ENGINE_OBJ_DIR)/*.o)
